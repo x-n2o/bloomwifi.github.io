@@ -23,6 +23,7 @@ description: >- # this means to ignore newlines until "baseurl:"
   Bloom Nine Elms Guest Wi-Fi
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://bloomwifi.today" # the base hostname & protocol for your site, e.g. http://example.com
+timezone: Europe/London
 
 # Build settings
 theme: minima
