@@ -7,9 +7,9 @@
 name: deploy
 
 on:
-  # Runs at midnight BST (UTC+1)
+  # Runs every 8 hours
   schedule:
-    - cron: '0 23 * * *'
+    - cron: '0 */8 * * *'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
