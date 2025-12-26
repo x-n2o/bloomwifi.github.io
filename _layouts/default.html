@@ -5,9 +5,91 @@
       .qr-code {
         max-width: 400px;
       }
+
+      /* Snowflake container */
+      .snowflakes {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        overflow: hidden;
+      }
+
+      /* Snowflake styling */
+      .snowflake {
+        position: absolute;
+        top: -10px;
+        color: #fff;
+        font-size: 1em;
+        font-family: Arial, sans-serif;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        animation: fall linear infinite;
+        opacity: 0.8;
+      }
+
+      /* Falling animation */
+      @keyframes fall {
+        0% {
+          top: -10%;
+          transform: translateX(0) rotate(0deg);
+        }
+        100% {
+          top: 110%;
+          transform: translateX(100px) rotate(360deg);
+        }
+      }
+
+      /* Different speeds and positions for snowflakes */
+      .snowflake:nth-child(1) { left: 5%; animation-duration: 8s; animation-delay: 0s; font-size: 1.2em; }
+      .snowflake:nth-child(2) { left: 15%; animation-duration: 12s; animation-delay: 1s; font-size: 0.8em; }
+      .snowflake:nth-child(3) { left: 25%; animation-duration: 10s; animation-delay: 2s; font-size: 1.4em; }
+      .snowflake:nth-child(4) { left: 35%; animation-duration: 14s; animation-delay: 0.5s; font-size: 1em; }
+      .snowflake:nth-child(5) { left: 45%; animation-duration: 11s; animation-delay: 3s; font-size: 1.1em; }
+      .snowflake:nth-child(6) { left: 55%; animation-duration: 9s; animation-delay: 1.5s; font-size: 0.9em; }
+      .snowflake:nth-child(7) { left: 65%; animation-duration: 13s; animation-delay: 2.5s; font-size: 1.3em; }
+      .snowflake:nth-child(8) { left: 75%; animation-duration: 10s; animation-delay: 0s; font-size: 1em; }
+      .snowflake:nth-child(9) { left: 85%; animation-duration: 11s; animation-delay: 1s; font-size: 1.2em; }
+      .snowflake:nth-child(10) { left: 95%; animation-duration: 12s; animation-delay: 2s; font-size: 0.8em; }
+      .snowflake:nth-child(11) { left: 10%; animation-duration: 15s; animation-delay: 3.5s; font-size: 1.1em; }
+      .snowflake:nth-child(12) { left: 20%; animation-duration: 9s; animation-delay: 0.5s; font-size: 0.9em; }
+      .snowflake:nth-child(13) { left: 30%; animation-duration: 13s; animation-delay: 4s; font-size: 1.4em; }
+      .snowflake:nth-child(14) { left: 40%; animation-duration: 11s; animation-delay: 2.5s; font-size: 1em; }
+      .snowflake:nth-child(15) { left: 50%; animation-duration: 10s; animation-delay: 1.5s; font-size: 1.2em; }
+      .snowflake:nth-child(16) { left: 60%; animation-duration: 14s; animation-delay: 3s; font-size: 0.8em; }
+      .snowflake:nth-child(17) { left: 70%; animation-duration: 12s; animation-delay: 0s; font-size: 1.3em; }
+      .snowflake:nth-child(18) { left: 80%; animation-duration: 9s; animation-delay: 1s; font-size: 1.1em; }
+      .snowflake:nth-child(19) { left: 90%; animation-duration: 11s; animation-delay: 2s; font-size: 0.9em; }
+      .snowflake:nth-child(20) { left: 8%; animation-duration: 13s; animation-delay: 3.5s; font-size: 1em; }
     </style>
   </head>
   <body>
+    <!-- Snowflakes container -->
+    <div class="snowflakes" aria-hidden="true">
+      <div class="snowflake">❅</div>
+      <div class="snowflake">❆</div>
+      <div class="snowflake">❅</div>
+      <div class="snowflake">❆</div>
+      <div class="snowflake">❅</div>
+      <div class="snowflake">❆</div>
+      <div class="snowflake">❅</div>
+      <div class="snowflake">❆</div>
+      <div class="snowflake">❅</div>
+      <div class="snowflake">❆</div>
+      <div class="snowflake">❅</div>
+      <div class="snowflake">❆</div>
+      <div class="snowflake">❅</div>
+      <div class="snowflake">❆</div>
+      <div class="snowflake">❅</div>
+      <div class="snowflake">❆</div>
+      <div class="snowflake">❅</div>
+      <div class="snowflake">❆</div>
+      <div class="snowflake">❅</div>
+      <div class="snowflake">❆</div>
+    </div>
+
     <h1><a href="https://bloomwifi.today/" style="color: #007bff">https://bloomwifi.today/</a></h1>
     {{ content }}
   </body>
