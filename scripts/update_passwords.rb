@@ -112,6 +112,17 @@ def parse_passwords(csv_data)
   passwords
 end
 
+def existing_post_dates
+  posts_dir = File.join(__dir__, '..', '_posts')
+  return [] unless Dir.exist?(posts_dir)
+  
+  Dir.glob(File.join(posts_dir, '*-wifi.md')).map do |filepath|
+    filename = File.basename(filepath)
+    date_str = filename.match(/^(\d{4}-\d{2}-\d{2})-wifi\.md$/)&.[](1)
+    Date.parse(date_str) if date_str
+  end.compact
+end
+
 def create_post(date, password)
   posts_dir = File.join(__dir__, '..', '_posts')
   FileUtils.mkdir_p(posts_dir)
@@ -172,12 +183,22 @@ def main
     exit 1
   end
   
-  puts "\nGenerating #{passwords.size} post(s)..."
-  passwords.each do |date, password|
+  # Filter out dates that already have posts
+  existing_dates = existing_post_dates
+  new_passwords = passwords.reject { |date, _| existing_dates.include?(date) }
+  
+  if new_passwords.empty?
+    puts "\nNo new passwords to add. All #{passwords.size} dates already have posts."
+    exit 0
+  end
+  
+  puts "\nFound #{passwords.size} total, #{existing_dates.size} existing, #{new_passwords.size} new."
+  puts "Generating #{new_passwords.size} new post(s)..."
+  new_passwords.each do |date, password|
     create_post(date, password)
   end
   
-  puts "\nDone! Generated #{passwords.size} WiFi password post(s)."
+  puts "\nDone! Generated #{new_passwords.size} new WiFi password post(s)."
 end
 
 main if __FILE__ == $PROGRAM_NAME
