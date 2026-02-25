@@ -16,7 +16,7 @@ on:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -40,15 +40,6 @@ jobs:
           ruby-version: '3.4.1' # Not needed with a .ruby-version file
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           cache-version: 0 # Increment this number if you need to re-download cached gems
-      - name: Update passwords from Google Sheets
-        run: ruby scripts/update_passwords.rb
-      - name: Commit and push new posts
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add _posts/
-          git diff --cached --quiet || git commit -m "Add WiFi passwords $(date -u +%Y-%m-%d)"
-          git push
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
