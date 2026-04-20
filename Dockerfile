@@ -17,7 +17,7 @@ ENV BUNDLE_PATH=/usr/local/bundle \
     BUNDLE_RETRY=3
 
 RUN mkdir -p /usr/local/bundle /srv/jekyll \
-  && chmod 777 /usr/local/bundle
+  && chmod 755 /usr/local/bundle
 
 COPY Gemfile Gemfile.lock ./
 RUN gem install bundler -v "$BUNDLER_VERSION"
