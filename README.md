@@ -11,6 +11,7 @@ Wi-Fi passwords are managed in a [Google Sheet](https://docs.google.com/spreadsh
 Install Docker Desktop or Docker Engine with Docker Compose.
 
 No local Ruby or Bundler installation is required for the default workflow.
+The Docker image uses the version pinned in `.ruby-version`.
 
 ## Development
 ```bash

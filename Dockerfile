@@ -1,4 +1,5 @@
-FROM ruby:3.3-slim
+ARG RUBY_VERSION=3.4.1
+FROM ruby:${RUBY_VERSION}-slim
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends build-essential git nodejs \
