@@ -2,15 +2,32 @@
 
 set -eu
 
-if ! docker compose version >/dev/null 2>&1; then
-  echo "Docker Compose is required to build the site." >&2
+expected_ruby_version="$(tr -d '\n' < .ruby-version)"
+expected_ruby_version="${expected_ruby_version#ruby-}"
+
+if [ "${1:-}" = "--docker" ]; then
+  shift
+
+  if ! docker compose version >/dev/null 2>&1; then
+    echo "Docker Compose is required for Docker mode." >&2
+    exit 1
+  fi
+
+  export DOCKER_UID="$(id -u)"
+  export DOCKER_GID="$(id -g)"
+  export RUBY_VERSION="$expected_ruby_version"
+
+  exec docker compose run --build --rm site bundle exec jekyll build "$@"
+fi
+
+if ! command -v bundle >/dev/null 2>&1; then
+  echo "Local mode expects Ruby $expected_ruby_version with Bundler installed. Use ./build --docker if you want the containerized path." >&2
   exit 1
 fi
 
-export DOCKER_UID="$(id -u)"
-export DOCKER_GID="$(id -g)"
-export RUBY_VERSION="$(tr -d '\n' < .ruby-version)"
-RUBY_VERSION="${RUBY_VERSION#ruby-}"
-export RUBY_VERSION
+if ! bundle check >/dev/null 2>&1; then
+  echo "Local gems are not ready. Run bundle install with Ruby $expected_ruby_version, or use ./build --docker." >&2
+  exit 1
+fi
 
-exec docker compose run --build --rm site bundle exec jekyll build
+exec bundle exec jekyll build "$@"

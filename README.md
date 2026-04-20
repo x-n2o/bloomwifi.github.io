@@ -8,23 +8,28 @@ Jekyll site displaying daily guest Wi-Fi passwords with QR codes for easy access
 Wi-Fi passwords are managed in a [Google Sheet](https://docs.google.com/spreadsheets/d/13G1JKaLiD1rqrGp8rTGW5F14nfoBkfdbRpHar4J7_tk/edit?gid=1635679974#gid=1635679974). The spreadsheet contains two columns: `date` and `password`.
 
 ## Setup
-Install Docker Desktop or Docker Engine with Docker Compose.
+Install the local Ruby version pinned in `.ruby-version`, then install gems:
 
-No local Ruby or Bundler installation is required for the default workflow.
-The Docker image uses the version pinned in `.ruby-version`.
+```bash
+bundle install
+```
+
+Docker is optional. When you want the containerized path instead, add `--docker` to the helper scripts. The Docker image also uses the version pinned in `.ruby-version`.
 
 ## Development
 ```bash
 ./serve
+./serve --docker
 ```
 
-This builds the dev image on first run, installs gems inside Docker, and serves the site with live reload at `http://127.0.0.1:4000`.
+`./serve` runs Jekyll locally with your host Ruby. `./serve --docker` runs the same site in Docker.
 
 ## Updating Passwords
 To sync passwords from the Google Sheet and generate post files:
 
 ```bash
 ./update-passwords
+./update-passwords --docker
 ```
 
 This script will:
@@ -38,16 +43,7 @@ This script will:
 Generate the static site for deployment:
 ```bash
 ./build
+./build --docker
 ```
 
 Output will be in `_site/`.
-
-## Optional Local Ruby Workflow
-If you still want to run everything directly on your host machine:
-
-```bash
-bundle install
-bundle exec jekyll serve --livereload
-ruby scripts/update_passwords.rb
-bundle exec jekyll build
-```
