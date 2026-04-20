@@ -9,5 +9,8 @@ fi
 
 export DOCKER_UID="$(id -u)"
 export DOCKER_GID="$(id -g)"
+export RUBY_VERSION="$(tr -d '\n' < .ruby-version)"
+RUBY_VERSION="${RUBY_VERSION#ruby-}"
+export RUBY_VERSION
 
 exec docker compose up --build site
