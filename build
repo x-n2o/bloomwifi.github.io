@@ -3,11 +3,11 @@
 set -eu
 
 if ! docker compose version >/dev/null 2>&1; then
-  echo "Docker Compose is required to run the dev server." >&2
+  echo "Docker Compose is required to build the site." >&2
   exit 1
 fi
 
 export DOCKER_UID="$(id -u)"
 export DOCKER_GID="$(id -g)"
 
-exec docker compose up --build site
+exec docker compose run --build --rm site bundle exec jekyll build
