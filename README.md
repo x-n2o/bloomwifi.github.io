@@ -8,25 +8,34 @@ Jekyll site displaying daily guest Wi-Fi passwords with QR codes for easy access
 Wi-Fi passwords are managed in a [Google Sheet](https://docs.google.com/spreadsheets/d/13G1JKaLiD1rqrGp8rTGW5F14nfoBkfdbRpHar4J7_tk/edit?gid=1635679974#gid=1635679974). The spreadsheet contains two columns: `date` and `password`.
 
 ## Setup
+The recommended path requires only Docker — no local Ruby installation needed.
+
+```bash
+./serve --docker
+```
+
+If you prefer a local Ruby setup, install the version pinned in `.ruby-version` and then install gems:
+
 ```bash
 bundle install
 ```
 
+The Docker image also uses the Ruby version pinned in `.ruby-version`.
+
 ## Development
-Run the local server with live reload:
 ```bash
 ./serve
-# or
-bundle exec jekyll serve --livereload
+./serve --docker
 ```
 
-Visit `http://127.0.0.1:4000` to preview.
+`./serve` runs Jekyll locally with your host Ruby. `./serve --docker` runs the same site in Docker. After either command starts successfully, preview the site at `http://127.0.0.1:4000` (or `http://localhost:4000`). If you use Docker, Jekyll binds to `0.0.0.0` inside the container, but the site is still accessible via localhost on your host machine.
 
 ## Updating Passwords
 To sync passwords from the Google Sheet and generate post files:
 
 ```bash
-ruby scripts/update_passwords.rb
+./update-passwords
+./update-passwords --docker
 ```
 
 This script will:
@@ -39,7 +48,8 @@ This script will:
 ## Build
 Generate the static site for deployment:
 ```bash
-bundle exec jekyll build
+./build
+./build --docker
 ```
 
 Output will be in `_site/`.

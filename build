@@ -17,18 +17,17 @@ if [ "${1:-}" = "--docker" ]; then
   export DOCKER_GID="$(id -g)"
   export RUBY_VERSION="$expected_ruby_version"
 
-  exec docker compose run --build --rm --service-ports site \
-    bundle exec jekyll serve --host 0.0.0.0 --livereload --force_polling "$@"
+  exec docker compose run --build --rm site bundle exec jekyll build "$@"
 fi
 
 if ! command -v bundle >/dev/null 2>&1; then
-  echo "Local mode expects Ruby $expected_ruby_version with Bundler installed. Use ./serve --docker if you want the containerized path." >&2
+  echo "Local mode expects Ruby $expected_ruby_version with Bundler installed. Use ./build --docker if you want the containerized path." >&2
   exit 1
 fi
 
 if ! bundle check >/dev/null 2>&1; then
-  echo "Local gems are not ready. Run bundle install with Ruby $expected_ruby_version, or use ./serve --docker." >&2
+  echo "Local gems are not ready. Run bundle install with Ruby $expected_ruby_version, or use ./build --docker." >&2
   exit 1
 fi
 
-exec bundle exec jekyll serve --livereload "$@"
+exec bundle exec jekyll build "$@"

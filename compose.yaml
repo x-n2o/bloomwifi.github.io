@@ -1,0 +1,17 @@
+services:
+  site:
+    build:
+      context: .
+      args:
+        RUBY_VERSION: "${RUBY_VERSION:-3.4.1}"
+    init: true
+    user: "${DOCKER_UID:-1000}:${DOCKER_GID:-1000}"
+    working_dir: /srv/jekyll
+    ports:
+      - "4000:4000"
+      - "35729:35729"
+    environment:
+      HOME: /tmp
+      JEKYLL_ENV: development
+    volumes:
+      - .:/srv/jekyll
