@@ -3,52 +3,40 @@ layout: default
 ---
 {{ content }}
 
+{% assign navigation_post = nil %}
 {% if page.collection == "posts" %}
+  {% assign navigation_post = page %}
+{% elsif page.layout == "home" %}
+  {% assign navigation_post = site.posts | first %}
+{% endif %}
+
+{% if navigation_post %}
   {% assign yesterday_post = nil %}
   {% assign tomorrow_post = nil %}
-  {% if page.previous %}
-    {% if page.previous.date < page.date %}
-      {% assign yesterday_post = page.previous %}
+  {% if navigation_post.previous %}
+    {% if navigation_post.previous.date < navigation_post.date %}
+      {% assign yesterday_post = navigation_post.previous %}
     {% else %}
-      {% assign tomorrow_post = page.previous %}
+      {% assign tomorrow_post = navigation_post.previous %}
     {% endif %}
   {% endif %}
-  {% if page.next %}
-    {% if page.next.date < page.date %}
-      {% assign yesterday_post = page.next %}
+  {% if navigation_post.next %}
+    {% if navigation_post.next.date < navigation_post.date %}
+      {% assign yesterday_post = navigation_post.next %}
     {% else %}
-      {% assign tomorrow_post = page.next %}
+      {% assign tomorrow_post = navigation_post.next %}
     {% endif %}
   {% endif %}
 
-  <style>
-  .day-navigation {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 24px 0 0;
-  }
-  .day-navigation a {
-    border: 1px solid #d0d7de;
-    border-radius: 999px;
-    color: #007bff;
-    display: inline-block;
-    font-weight: 600;
-    padding: 8px 12px;
-    text-decoration: none;
-  }
-  .day-navigation a:hover {
-    background: #f6f8fa;
-    color: #0056b3;
-  }
-  </style>
-
-  <nav class="day-navigation" aria-label="Wi-Fi password days">
+  <nav aria-label="Wi-Fi password days">
     {% if yesterday_post %}
-      <a href="{{ yesterday_post.url | relative_url }}">Yesterday</a>
+      <a href="{{ yesterday_post.url | relative_url }}">Yesterday ({{ yesterday_post.date | date: "%b %-d" }})</a>
+    {% endif %}
+    {% if yesterday_post and tomorrow_post %}
+      |
     {% endif %}
     {% if tomorrow_post %}
-      <a href="{{ tomorrow_post.url | relative_url }}">Tomorrow</a>
+      <a href="{{ tomorrow_post.url | relative_url }}">Tomorrow ({{ tomorrow_post.date | date: "%b %-d" }})</a>
     {% endif %}
   </nav>
 {% endif %}
