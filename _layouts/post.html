@@ -7,7 +7,13 @@ layout: default
 {% if page.collection == "posts" %}
   {% assign navigation_post = page %}
 {% elsif page.layout == "home" %}
-  {% assign navigation_post = site.posts | first %}
+  {% assign current_time = site.time | date: "%s" | plus: 0 %}
+  {% for post in site.posts %}
+    {% assign post_time = post.date | date: "%s" | plus: 0 %}
+    {% if navigation_post == nil and post_time <= current_time %}
+      {% assign navigation_post = post %}
+    {% endif %}
+  {% endfor %}
 {% endif %}
 
 {% if navigation_post %}

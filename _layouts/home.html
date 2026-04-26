@@ -2,6 +2,13 @@
 layout: post
 ---
 
-{% for post in site.posts limit:1 %}
-  {{ post.content }}
+{% assign current_time = site.time | date: "%s" | plus: 0 %}
+{% assign home_post = nil %}
+{% for post in site.posts %}
+  {% assign post_time = post.date | date: "%s" | plus: 0 %}
+  {% if home_post == nil and post_time <= current_time %}
+    {% assign home_post = post %}
+  {% endif %}
 {% endfor %}
+
+{{ home_post.content }}
