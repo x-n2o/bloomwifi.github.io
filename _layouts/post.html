@@ -2,3 +2,47 @@
 layout: default
 ---
 {{ content }}
+
+{% assign navigation_post = nil %}
+{% if page.collection == "posts" %}
+  {% assign navigation_post = page %}
+{% elsif page.layout == "home" %}
+  {% assign current_time = site.time | date: "%s" | plus: 0 %}
+  {% for post in site.posts %}
+    {% assign post_time = post.date | date: "%s" | plus: 0 %}
+    {% if navigation_post == nil and post_time <= current_time %}
+      {% assign navigation_post = post %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% if navigation_post %}
+  {% assign yesterday_post = nil %}
+  {% assign tomorrow_post = nil %}
+  {% if navigation_post.previous %}
+    {% if navigation_post.previous.date < navigation_post.date %}
+      {% assign yesterday_post = navigation_post.previous %}
+    {% else %}
+      {% assign tomorrow_post = navigation_post.previous %}
+    {% endif %}
+  {% endif %}
+  {% if navigation_post.next %}
+    {% if navigation_post.next.date < navigation_post.date %}
+      {% assign yesterday_post = navigation_post.next %}
+    {% else %}
+      {% assign tomorrow_post = navigation_post.next %}
+    {% endif %}
+  {% endif %}
+
+  <nav aria-label="Wi-Fi password days">
+    {% if yesterday_post %}
+      <a href="{{ yesterday_post.url | relative_url }}">Yesterday ({{ yesterday_post.date | date: "%b %-d" }})</a>
+    {% endif %}
+    {% if yesterday_post and tomorrow_post %}
+      |
+    {% endif %}
+    {% if tomorrow_post %}
+      <a href="{{ tomorrow_post.url | relative_url }}">Tomorrow ({{ tomorrow_post.date | date: "%b %-d" }})</a>
+    {% endif %}
+  </nav>
+{% endif %}
