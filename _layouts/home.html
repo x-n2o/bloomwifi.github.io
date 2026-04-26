@@ -6,9 +6,16 @@ layout: post
 {% assign home_post = nil %}
 {% for post in site.posts %}
   {% assign post_time = post.date | date: "%s" | plus: 0 %}
-  {% if home_post == nil and post_time <= current_time %}
+  {% if post_time <= current_time %}
     {% assign home_post = post %}
+    {% break %}
   {% endif %}
 {% endfor %}
 
-{{ home_post.content }}
+{% if home_post %}
+  {{ home_post.content }}
+{% elsif site.posts.first %}
+  {{ site.posts.first.content }}
+{% else %}
+  <p>No posts are available yet.</p>
+{% endif %}
