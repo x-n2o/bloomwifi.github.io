@@ -1,4 +1,13 @@
 # bloomwifi.github.io
+
+[![GitHub x-n2o/bloomwifi.github.io](https://img.shields.io/badge/GitHub-x--n2o%2Fbloomwifi.github.io-181717?logo=github&logoColor=white)](https://github.com/x-n2o/bloomwifi.github.io)
+[![Deploy workflow](https://github.com/x-n2o/bloomwifi.github.io/actions/workflows/jekyll.yml/badge.svg)](https://github.com/x-n2o/bloomwifi.github.io/actions/workflows/jekyll.yml)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-bloomwifi.today-2ea44f?logo=githubpages&logoColor=white)](https://bloomwifi.today/)
+[![Jekyll](https://img.shields.io/badge/Jekyll-GitHub%20Pages-CC0000?logo=jekyll&logoColor=white)](https://jekyllrb.com/)
+[![Ruby 3.4.1](https://img.shields.io/badge/Ruby-3.4.1-CC342D?logo=ruby&logoColor=white)](.ruby-version)
+[![Docker ready](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](Dockerfile)
+[![Google Sheet source](https://img.shields.io/badge/Google%20Sheet-source%20of%20truth-34A853?logo=googlesheets&logoColor=white)](https://docs.google.com/spreadsheets/d/13G1JKaLiD1rqrGp8rTGW5F14nfoBkfdbRpHar4J7_tk/edit?gid=1635679974#gid=1635679974)
+
 Bloom Nine Elms Guest Wi-Fi
 
 ## Overview
