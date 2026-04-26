@@ -10,8 +10,9 @@ layout: default
   {% assign current_time = site.time | date: "%s" | plus: 0 %}
   {% for post in site.posts %}
     {% assign post_time = post.date | date: "%s" | plus: 0 %}
-    {% if navigation_post == nil and post_time <= current_time %}
+    {% if post_time <= current_time %}
       {% assign navigation_post = post %}
+      {% break %}
     {% endif %}
   {% endfor %}
 {% endif %}
@@ -39,7 +40,7 @@ layout: default
       <a href="{{ yesterday_post.url | relative_url }}">Yesterday ({{ yesterday_post.date | date: "%b %-d" }})</a>
     {% endif %}
     {% if yesterday_post and tomorrow_post %}
-      |
+      <span aria-hidden="true"> | </span>
     {% endif %}
     {% if tomorrow_post %}
       <a href="{{ tomorrow_post.url | relative_url }}">Tomorrow ({{ tomorrow_post.date | date: "%b %-d" }})</a>
@@ -50,7 +51,7 @@ layout: default
 {% if page.layout == "home" %}
   <footer aria-label="Project resources">
     <p>
-      <a href="https://github.com/x-n2o/bloomwifi.github.io">GitHub</a> | <a href="https://docs.google.com/spreadsheets/d/13G1JKaLiD1rqrGp8rTGW5F14nfoBkfdbRpHar4J7_tk/edit?gid=1635679974#gid=1635679974">Google Sheet</a>
+      <a href="https://github.com/x-n2o/bloomwifi.github.io">GitHub</a><span aria-hidden="true"> | </span><a href="https://docs.google.com/spreadsheets/d/13G1JKaLiD1rqrGp8rTGW5F14nfoBkfdbRpHar4J7_tk/edit?gid=1635679974#gid=1635679974">Google Sheet</a>
     </p>
   </footer>
 {% endif %}
