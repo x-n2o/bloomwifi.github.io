@@ -10,6 +10,8 @@ require 'fileutils'
 SHEET_ID = '13G1JKaLiD1rqrGp8rTGW5F14nfoBkfdbRpHar4J7_tk'
 GID = '1635679974'
 CSV_URL = "https://docs.google.com/spreadsheets/d/#{SHEET_ID}/export?format=csv&gid=#{GID}"
+FRONT_MATTER_PASSWORD_PATTERN = /^password:\s*.*$/
+QR_PASSWORD_PATTERN = /\{% qr WIFI:T:WPA;S:Bloom Guest;P:[^;]+; %\}/
 
 # Post template
 POST_TEMPLATE = <<~TEMPLATE
@@ -79,41 +81,33 @@ end
 
 def parse_passwords(csv_data)
   passwords = {}
-  
-  puts "\nDEBUG: First 500 chars of CSV:"
-  puts csv_data[0...500]
-  puts "\n"
-  
-  lines = csv_data.split("\n")
-  headers = lines[0].split(',').map(&:strip)
-  puts "DEBUG: Headers: #{headers.inspect}"
-  
-  lines[1..-1].each_with_index do |line, idx|
-    next if line.strip.empty?
-    
-    fields = line.split(',').map(&:strip)
-    next if fields.size < 2
-    
-    date_str = fields[0]
-    password = fields[1]
-    
-    puts "DEBUG: Row #{idx + 1} - Date: '#{date_str}', Password: '#{password}'"
-    
-    next if date_str.nil? || password.nil? || password.empty?
+
+  CSV.parse(csv_data, headers: true).each_with_index do |row, idx|
+    date_str = row['date'] || row[0]
+    password = (row['password'] || row[1]).to_s.strip
+
+    next if date_str.to_s.strip.empty? || password.empty?
     
     begin
       date = Date.parse(date_str)
       passwords[date] = password
     rescue Date::Error => e
-      puts "Warning: Invalid date format '#{date_str}': #{e.message}"
+      puts "Warning: Invalid date format '#{date_str}' on row #{idx + 2}: #{e.message}"
     end
   end
   
   passwords
 end
 
-def existing_post_dates
-  posts_dir = File.join(__dir__, '..', '_posts')
+def posts_dir
+  File.join(__dir__, '..', '_posts')
+end
+
+def post_path(date)
+  File.join(posts_dir, "#{date.strftime('%Y-%m-%d')}-wifi.md")
+end
+
+def local_post_dates
   return [] unless Dir.exist?(posts_dir)
   
   Dir.glob(File.join(posts_dir, '*-wifi.md')).map do |filepath|
@@ -124,11 +118,10 @@ def existing_post_dates
 end
 
 def create_post(date, password)
-  posts_dir = File.join(__dir__, '..', '_posts')
   FileUtils.mkdir_p(posts_dir)
   
   filename = "#{date.strftime('%Y-%m-%d')}-wifi.md"
-  filepath = File.join(posts_dir, filename)
+  filepath = post_path(date)
   
   content = <<~CONTENT
     ---
@@ -171,6 +164,34 @@ def create_post(date, password)
   puts "Created: #{filename}"
 end
 
+def update_post(date, password)
+  filepath = post_path(date)
+  filename = File.basename(filepath)
+
+  unless File.exist?(filepath)
+    create_post(date, password)
+    return :created
+  end
+
+  content = File.read(filepath)
+  front_matter_password = content[/^password:\s*(.+)$/, 1]&.strip
+  qr_password = content[/\{% qr WIFI:T:WPA;S:Bloom Guest;P:([^;]+); %\}/, 1]&.strip
+
+  return :unchanged if front_matter_password == password && qr_password == password
+
+  unless content.match?(FRONT_MATTER_PASSWORD_PATTERN) && content.match?(QR_PASSWORD_PATTERN)
+    warn "Error: #{filename} is missing the expected password fields."
+    exit 1
+  end
+
+  updated = content
+            .sub(FRONT_MATTER_PASSWORD_PATTERN, "password: #{password}")
+            .sub(QR_PASSWORD_PATTERN, "{% qr WIFI:T:WPA;S:Bloom Guest;P:#{password}; %}")
+  File.write(filepath, updated)
+  puts "Updated: #{filename}"
+  :updated
+end
+
 def main
   puts "Fetching passwords from Google Sheets..."
   csv_data = fetch_csv_data
@@ -183,22 +204,20 @@ def main
     exit 1
   end
   
-  # Filter out dates that already have posts
-  existing_dates = existing_post_dates
-  new_passwords = passwords.reject { |date, _| existing_dates.include?(date) }
-  
-  if new_passwords.empty?
-    puts "\nNo new passwords to add. All #{passwords.size} dates already have posts."
-    exit 0
+  counts = Hash.new(0)
+  passwords.sort.each do |date, password|
+    counts[update_post(date, password)] += 1
   end
   
-  puts "\nFound #{passwords.size} total, #{existing_dates.size} existing, #{new_passwords.size} new."
-  puts "Generating #{new_passwords.size} new post(s)..."
-  new_passwords.each do |date, password|
-    create_post(date, password)
+  extra_dates = local_post_dates - passwords.keys
+  if extra_dates.any?
+    filenames = extra_dates.sort.map { |date| "#{date.strftime('%Y-%m-%d')}-wifi.md" }
+    puts "Warning: #{extra_dates.size} local post(s) not found in the spreadsheet: #{filenames.join(', ')}"
   end
   
-  puts "\nDone! Generated #{new_passwords.size} new WiFi password post(s)."
+  puts "\nDone! #{passwords.size} spreadsheet rows checked; " \
+       "#{counts[:created]} created, #{counts[:updated]} updated, " \
+       "#{counts[:unchanged]} unchanged."
 end
 
 main if __FILE__ == $PROGRAM_NAME
