@@ -10,46 +10,15 @@ require 'fileutils'
 SHEET_ID = '13G1JKaLiD1rqrGp8rTGW5F14nfoBkfdbRpHar4J7_tk'
 GID = '1635679974'
 CSV_URL = "https://docs.google.com/spreadsheets/d/#{SHEET_ID}/export?format=csv&gid=#{GID}"
+# The password value is always quoted in front matter so that all-digit
+# passwords stay strings (unquoted YAML would coerce them to integers).
 FRONT_MATTER_PASSWORD_PATTERN = /^password:\s*.*$/
-QR_PASSWORD_PATTERN = /\{% qr WIFI:T:WPA;S:Bloom Guest;P:[^;]+; %\}/
-
-# Post template
-POST_TEMPLATE = <<~TEMPLATE
-  ---
-  layout: post
-  password: %{password}
-  ---
-  <h3>{{ page.date | date: "%%%%A, %%%%B %%%%e, %%%%Y" }}</h3>
-  <h1 id="password" onclick="copyToClipboard()" style="cursor: pointer; color: #007bff;">{{ page.password }} <i class="fas fa-copy"></i></h1>
-  {% qr WIFI:T:WPA;S:Bloom Guest;P:%{password}; %}
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-  <style>
-  #password:hover {
-    color: #0056b3;
-  }
-  #password i {
-    margin-left: 5px;
-    font-size: 0.9em;
-  }
-  </style>
-
-  <script>
-  function copyToClipboard() {
-    navigator.clipboard.writeText('{{ page.password }}');
-    const password = document.getElementById('password');
-    const originalHTML = password.innerHTML;
-    password.innerHTML = '{{ page.password }} <i class="fas fa-check"></i>';
-    password.style.color = '#28a745';
-    
-    setTimeout(() => {
-      password.innerHTML = originalHTML;
-      password.style.color = '#007bff';
-    }, 2000);
-  }
-  </script>
-TEMPLATE
+# Matches the QR tag line in both the canonical form (P:{{ page.password }})
+# and the legacy form that inlined the literal password.
+QR_TAG_PATTERN = /\{% qr WIFI:T:WPA;S:Bloom Guest;P:[^;]+; %\}/
+# The canonical QR line: the password is referenced via Liquid (expanded by
+# the jekyll-qr fork pinned in the Gemfile), never inlined as a literal.
+QR_LINE = '{% qr WIFI:T:WPA;S:Bloom Guest;P:{{ page.password }}; %}'
 
 def fetch_csv_data
   uri = URI(CSV_URL)
@@ -126,11 +95,11 @@ def create_post(date, password)
   content = <<~CONTENT
     ---
     layout: post
-    password: #{password}
+    password: "#{password}"
     ---
     <h3>{{ page.date | date: "%A, %B %e, %Y" }}</h3>
     <h1 id="password" onclick="copyToClipboard()" style="cursor: pointer; color: #007bff;">{{ page.password }} <i class="fas fa-copy"></i></h1>
-    {% qr WIFI:T:WPA;S:Bloom Guest;P:#{password}; %}
+    #{QR_LINE}
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
@@ -174,19 +143,22 @@ def update_post(date, password)
   end
 
   content = File.read(filepath)
-  front_matter_password = content[/^password:\s*(.+)$/, 1]&.strip
-  qr_password = content[/\{% qr WIFI:T:WPA;S:Bloom Guest;P:([^;]+); %\}/, 1]&.strip
+  front_matter_line = content[FRONT_MATTER_PASSWORD_PATTERN]
+  qr_line = content[QR_TAG_PATTERN]
 
-  return :unchanged if front_matter_password == password && qr_password == password
+  return :unchanged if front_matter_line == "password: \"#{password}\"" && qr_line == QR_LINE
 
-  unless content.match?(FRONT_MATTER_PASSWORD_PATTERN) && content.match?(QR_PASSWORD_PATTERN)
+  unless front_matter_line && qr_line
     warn "Error: #{filename} is missing the expected password fields."
     exit 1
   end
 
+  # Also migrates legacy posts (unquoted front matter or a literal password
+  # inlined in the QR tag) to the canonical form; the replacement is a
+  # constant, so a literal can never be reintroduced.
   updated = content
-            .sub(FRONT_MATTER_PASSWORD_PATTERN, "password: #{password}")
-            .sub(QR_PASSWORD_PATTERN, "{% qr WIFI:T:WPA;S:Bloom Guest;P:#{password}; %}")
+            .sub(FRONT_MATTER_PASSWORD_PATTERN, "password: \"#{password}\"")
+            .sub(QR_TAG_PATTERN, QR_LINE)
   File.write(filepath, updated)
   puts "Updated: #{filename}"
   :updated
