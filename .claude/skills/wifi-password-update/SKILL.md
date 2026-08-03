@@ -162,6 +162,19 @@ Avoid `mcp__github__actions_list`; its response is large enough to blow the tool
 output limit. `mcp__github__actions_get` with `get_workflow_job` returns the
 conclusion compactly.
 
+The `deploy` job fails transiently now and then with `Creating Pages deployment
+failed / HttpError: other side closed` — the artifact uploaded fine and GitHub's
+deployment API just dropped the connection. Re-run rather than investigate:
+
+```
+mcp__github__actions_run_trigger:
+  method: rerun_failed_jobs, owner: x-n2o, repo: bloomwifi.github.io, run_id: <id>
+```
+
+A re-run makes a new attempt, so the old job ID keeps reporting `failure` and
+`run_attempt: 1` forever. Fetch the new job IDs from `get_workflow_run_usage`
+before concluding anything about whether the re-run worked.
+
 ## Reporting back
 
 Say what's live and what isn't, and be specific about anything you couldn't do —
