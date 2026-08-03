@@ -1,6 +1,53 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {%- comment -%}
+      A post is identified by its date, so that is what its tab should say. The
+      posts branch has to come first: Jekyll derives `page.title` from the
+      filename slug, so every post would otherwise be titled "Wifi". Pages that
+      set a real title in front matter (404) keep theirs.
+
+      The date uses %-d, not the %e used by the post body and
+      scripts/update_passwords.rb. %e space-pads days 1-9, and while a browser
+      collapses that double space in <title>, an og: attribute value is taken
+      verbatim -- link previews would read "August  3, 2026". Body text can
+      afford %e because HTML collapses whitespace; attribute values cannot.
+    {%- endcomment -%}
+    {%- if page.collection == "posts" and page.date -%}
+      {%- assign post_date = page.date | date: "%A, %B %-d, %Y" -%}
+      {%- assign page_title = post_date | append: " · " | append: site.title -%}
+    {%- elsif page.title -%}
+      {%- assign page_title = page.title | append: " · " | append: site.title -%}
+    {%- else -%}
+      {%- assign page_title = site.title -%}
+    {%- endif -%}
+    {%- assign page_description = page.description | default: site.description | strip -%}
+
+    <title>{{ page_title | escape }}</title>
+    <meta name="description" content="{{ page_description | escape }}">
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ site.title | escape }}">
+    <meta property="og:title" content="{{ page_title | escape }}">
+    <meta property="og:description" content="{{ page_description | escape }}">
+    <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:locale" content="en_GB">
+    <meta name="twitter:card" content="summary">
+
+    <meta name="theme-color" content="#007bff">
+
+    {%- comment -%}
+      Inline SVG favicon: a Wi-Fi glyph in the same blue as the password, kept as a
+      data URI so the site stays asset-free and browsers stop 404ing /favicon.ico.
+    {%- endcomment -%}
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%23007bff' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M4.5 12.5a18 18 0 0 1 23 0'/%3E%3Cpath d='M9.5 18.5a11 11 0 0 1 13 0'/%3E%3C/g%3E%3Ccircle cx='16' cy='25' r='2.5' fill='%23007bff'/%3E%3C/svg%3E">
+
+    {%- feed_meta -%}
+
     <style>
       .qr-code {
         max-width: 400px;
