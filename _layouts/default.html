@@ -9,6 +9,12 @@
       posts branch has to come first: Jekyll derives `page.title` from the
       filename slug, so every post would otherwise be titled "Wifi". Pages that
       set a real title in front matter (404) keep theirs.
+
+      The date uses %-d, not the %e used by the post body and
+      scripts/update_passwords.rb. %e space-pads days 1-9, and while a browser
+      collapses that double space in <title>, an og: attribute value is taken
+      verbatim -- link previews would read "August  3, 2026". Body text can
+      afford %e because HTML collapses whitespace; attribute values cannot.
     {%- endcomment -%}
     {%- if page.collection == "posts" and page.date -%}
       {%- assign post_date = page.date | date: "%A, %B %-d, %Y" -%}
