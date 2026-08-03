@@ -29,6 +29,11 @@ Sheet: https://docs.google.com/spreadsheets/d/13G1JKaLiD1rqrGp8rTGW5F14nfoBkfdbR
 Columns are `date,password` with a header row. `scripts/update_passwords.rb` hardcodes
 the sheet ID and gid, so a new sheet means editing that script — prefer keeping this one.
 
+Posts store each password once, quoted, in front matter; the `{% qr %}` line
+references it as `{{ page.password }}`, expanded at build time by the
+`x-n2o/jekyll-qr` fork pinned in the Gemfile. Never inline a literal password
+in the QR tag.
+
 ## Pipeline
 
 ### 1. Read the sheet as it stands
@@ -78,7 +83,9 @@ proceeding without it produces posts with no backing row.
 Read the summary line — it's the real signal:
 
 - `N created` — new dates appeared in the sheet.
-- `N updated` — existing dates changed value.
+- `N updated` — existing dates changed value, or a legacy post was migrated to
+  the canonical form (quoted front matter, `{{ page.password }}` in the QR
+  line). Migration happens at most once per post and is idempotent afterwards.
 - `N unchanged` — already in sync.
 - `Warning: N local post(s) not found in the spreadsheet` — posts exist in `_posts/`
   with no sheet row. The script never deletes, so these linger and serve stale
@@ -116,8 +123,15 @@ Then confirm a page actually rendered — a green build says nothing about wheth
 Liquid produced the right password:
 
 ```bash
-grep -c '6NHTtwFN' _site/2026/08/03/index.html   # expect 3: heading, QR payload, clipboard JS
+grep -c '6NHTtwFN' _site/2026/08/03/index.html   # expect 3: heading + two clipboard-JS lines
 ```
+
+The QR code never contains the literal password in the HTML — it is a
+URL-encoded SVG data URI computed from the payload. To verify the QR itself,
+recompute the expected `<img>` with rqrcode (options `level: :l`; `viewbox:
+true, offset: 44, use_path: true` for the payload
+`WIFI:T:WPA;S:Bloom Guest;P:<password>;`) and check the page contains it
+verbatim.
 
 Built pages live at `_site/YYYY/MM/DD/index.html`. `_site/` is gitignored; never
 commit it or hand-edit it.
