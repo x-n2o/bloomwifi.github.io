@@ -12,7 +12,8 @@
 - Optional: `bundle exec jekyll doctor` to sanity-check the config and content.
 
 ## Coding Style & Naming Conventions
-- Posts use YAML front matter with `layout: post` and a `password` field; keep the filename date in UTC to match publish order.
+- Posts use YAML front matter with `layout: post` and a quoted `password` field; keep the filename date in UTC to match publish order.
+- The front-matter `password` is the single source of the password inside a post: the QR line references it via Liquid (`page.password`) and must stay exactly the `QR_LINE` string emitted by `scripts/update_passwords.rb` — never inline the literal password in the qr tag. (Avoid writing a literal qr tag or Liquid output in this file: it is Liquid-rendered into `AGENTS/index.html` at build time.)
 - Keep markup minimal; prefer Markdown with small HTML snippets already used in posts (copy-to-clipboard block). Two-space indentation in HTML/CSS/JS snippets to match existing files.
 - Liquid filters handle date formatting: `{{ page.date | date: "%A, %B %e, %Y" }}`; stay consistent when adding variations.
 - Avoid editing `_site/`; change templates in `_layouts/` or content in `_posts/` instead.
@@ -29,3 +30,4 @@
 ## Security & Configuration Tips
 - Do not hard-code unrelated secrets or tokens; only store intended guest Wi‑Fi passwords in `_posts/`.
 - Ensure new external assets use HTTPS and reputable CDNs. If adding plugins, prefer ones supported by GitHub Pages or document any required build steps.
+- Build step for QR codes: `jekyll-qr` comes from the git-pinned fork [`x-n2o/jekyll-qr`](https://codeberg.org/x-n2o/jekyll-qr) (GPL-3.0-only), fetched by `bundle install` locally and in the deploy workflow. Changing it means updating `Gemfile` and `Gemfile.lock` together — call that out explicitly per the PR guidelines.

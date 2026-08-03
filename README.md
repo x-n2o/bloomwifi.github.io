@@ -50,9 +50,12 @@ To sync passwords from the Google Sheet and generate post files:
 This script will:
 - Fetch the latest passwords from the Google Sheet
 - Generate or update post files in `_posts/` with the `YYYY-MM-DD-wifi.md` naming pattern
-- Create posts with the proper template including QR codes and copy-to-clipboard functionality
+- Store each password once, in the post's front matter; the QR code line references it as `{{ page.password }}`, and re-running the script migrates any legacy post that still inlines the literal (reported as "Updated")
 
 **Note:** The Google Sheet must be publicly accessible (view-only is sufficient) for the script to work.
+
+## QR plugin
+QR codes are rendered by [`jekyll-qr`](https://codeberg.org/x-n2o/jekyll-qr), consumed as a git-sourced gem pinned to tag `v1.1.0` in the `Gemfile`. It is a GPL-3.0-only fork of upstream [codeberg.org/seabass/jekyll-qr](https://codeberg.org/seabass/jekyll-qr) that adds Liquid variable expansion inside the `{% qr %}` tag, so posts write `{% qr WIFI:T:WPA;S:Bloom Guest;P:{{ page.password }}; %}` and the password lives only in front matter. `bundle install` fetches it from Codeberg automatically — no extra build steps. To upgrade, tag a new version in the fork, bump the `tag:` in the `Gemfile`, and run `bundle install`.
 
 ## Build
 Generate the static site for deployment:
